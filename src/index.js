@@ -1,10 +1,31 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
+import { createStore, applyMiddleware } from 'redux';
+import rootReducer from './reducers';
 import './index.css';
-import App from './App';
+import App from './containers/App';
 import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+function logger({ getState }) {
+  return next => action => {
+    console.log('dispatching', action);
+    let result = next(action);
+    console.log('next state', getState());
+    return result;
+  };
+}
+// 1、创建store，先调用applyMiddleware方法
+const store = createStore(rootReducer, applyMiddleware(thunk, logger));
+console.log(store.getState());
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('root')
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
